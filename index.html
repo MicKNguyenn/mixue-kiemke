@@ -657,6 +657,47 @@
                 bookDisplay.innerHTML = '...............................................................................................';
             }
 
+            // Automated discrepancy analysis suggestion
+            const ctrlReason = document.getElementById('ctrl-diff-reason');
+            const ctrlConclusion = document.getElementById('ctrl-conclusion');
+            const paperReason = document.getElementById('paper-diff-reason-text');
+            const paperConclusion = document.getElementById('paper-conclusion-text');
+
+            if (raw !== '' && raw !== '-' && totalAmount > 0) {
+                const difference = totalAmount - bookVal;
+                let suggestedReason = "";
+                let suggestedConclusion = "";
+
+                if (difference === 0) {
+                    suggestedReason = "";
+                    suggestedConclusion = "";
+                } else if (difference > 0) {
+                    suggestedReason = "";
+                    suggestedConclusion = ``;
+                } else {
+                    suggestedReason = ``;
+                    suggestedConclusion = ``;
+                }
+
+                if (!isManualDiffReason) {
+                    ctrlReason.value = suggestedReason;
+                    paperReason.innerHTML = `<b>${suggestedReason}</b>`;
+                }
+                if (!isManualConclusion) {
+                    ctrlConclusion.value = suggestedConclusion;
+                    paperConclusion.innerHTML = `<b>${suggestedConclusion}</b>`;
+                }
+            } else {
+                if (!isManualDiffReason) {
+                    ctrlReason.value = "";
+                    paperReason.innerHTML = '........................................................................................................................................................................................................................................................................';
+                }
+                if (!isManualConclusion) {
+                    ctrlConclusion.value = "";
+                    paperConclusion.innerHTML = '........................................................................................................................................................................................................................................................................';
+                }
+            }
+        }
 
         // Custom responsive alert indicators
         function showToast(message, type = 'success') {
