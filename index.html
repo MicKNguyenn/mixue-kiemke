@@ -270,11 +270,12 @@
             </div>
         </div>
 
-        <!-- RIGHT PANEL: WYSIWYG LIVE PREVIEW IN A4 LAYOUT -->
-        <div class="flex-1 bg-[#090b11] p-4 sm:p-6 lg:p-10 xl:p-12 overflow-y-auto flex justify-center items-start print:p-0 print:bg-white">
+        <!-- RIGHT PANEL -->
+        <div id="preview-panel"
+            class="hidden flex-1 bg-[#090b11] p-4 sm:p-6 lg:p-10 xl:p-12 overflow-y-auto justify-center items-start print:p-0 print:bg-white">
             
             <!-- Standard A4 Sheet wrapper for PDF generation -->
-            <div id="printable-document" class="print-container w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-[20mm] sm:p-[22mm] paper-shadow border border-slate-900/10 text-[12.5pt] leading-relaxed font-serif relative print:shadow-none print:border-none print:p-0">
+            <div id="printable-document" class="print-container w-full max-w-[210Qmm] min-h-[297mm] bg-white text-black p-[20mm] sm:p-[22mm] paper-shadow border border-slate-900/10 text-[12.5pt] leading-relaxed font-serif relative print:shadow-none print:border-none print:p-0">
                 
                 <!-- Administrative Standard Header -->
                 <div class="w-full flex justify-between items-start mb-6 text-sm">
@@ -649,40 +650,6 @@
             const paperReason = document.getElementById('paper-diff-reason-text');
             const paperConclusion = document.getElementById('paper-conclusion-text');
 
-            if (bookVal > 0 && totalAmount > 0) {
-                const difference = totalAmount - bookVal;
-                let suggestedReason = "";
-                let suggestedConclusion = "";
-
-                if (difference === 0) {
-                    suggestedReason = "Kiểm kê trùng khớp hoàn toàn, không có chênh lệch giữa số dư sổ sách và tồn quỹ thực tế.";
-                    suggestedConclusion = "Quỹ hoạt động ổn định, an toàn, thủ quỹ quản lý dòng tiền mặt khớp đúng chứng từ.";
-                } else if (difference > 0) {
-                    suggestedReason = `Thừa quỹ tiền mặt: +${difference.toLocaleString('vi-VN')} VNĐ. Nguyên nhân đề xuất do thừa tiền lẻ chưa trả lại hoặc chưa vào kịp chứng từ thu.`;
-                    suggestedConclusion = `Tạm thời nộp vào quỹ dự trữ khoản chênh lệch thừa ${difference.toLocaleString('vi-VN')} VNĐ và rà soát thêm lịch sử chứng từ trong ngày.`;
-                } else {
-                    suggestedReason = `Thiếu hụt quỹ tiền mặt: -${Math.abs(difference).toLocaleString('vi-VN')} VNĐ. Nguyên nhân sơ bộ đang chờ đối chiếu chi tiết sổ sách ngân quỹ ngày hôm nay.`;
-                    suggestedConclusion = `Yêu cầu làm rõ trách nhiệm cá nhân liên đới, thủ quỹ có nghĩa vụ hoàn trả phần thâm hụt ${Math.abs(difference).toLocaleString('vi-VN')} VNĐ cho quỹ.`;
-                }
-
-                if (!isManualDiffReason) {
-                    ctrlReason.value = suggestedReason;
-                    paperReason.innerHTML = `<b>${suggestedReason}</b>`;
-                }
-                if (!isManualConclusion) {
-                    ctrlConclusion.value = suggestedConclusion;
-                    paperConclusion.innerHTML = `<b>${suggestedConclusion}</b>`;
-                }
-            } else {
-                if (!isManualDiffReason) {
-                    ctrlReason.value = "";
-                    paperReason.innerHTML = '........................................................................................................................................................................................................................................................................';
-                }
-                if (!isManualConclusion) {
-                    ctrlConclusion.value = "";
-                    paperConclusion.innerHTML = '........................................................................................................................................................................................................................................................................';
-                }
-            }
         }
 
         // Custom responsive alert indicators
