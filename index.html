@@ -585,13 +585,26 @@
 
         // Format book financial balance elements instantly in local context
         function formatAndSyncBookBalance(inputEl) {
-            let digits = inputEl.value.replace(/\D/g, '');
-            if (digits) {
-                const formatted = parseInt(digits).toLocaleString('vi-VN');
-                inputEl.value = formatted;
-            } else {
-                inputEl.value = '';
+            let value = inputEl.value;
+
+    // Giữ lại dấu "-" nếu ở đầu và các chữ số
+            value = value.replace(/[^\d-]/g, '');
+
+    // Chỉ cho phép 1 dấu "-" ở đầu
+            value = value.replace(/(?!^)-/g, '');
+
+            if (value === '' || value === '-') {
+                inputEl.value = value;
+                recalculateCoreMetrics();
+                return;
             }
+
+            const number = parseInt(value, 10);
+
+            inputEl.value =
+                (number < 0 ? '-' : '') +
+                Math.abs(number).toLocaleString('vi-VN');
+
             recalculateCoreMetrics();
         }
 
@@ -634,8 +647,8 @@
             }
 
             // Match discrepancy with paper book balance
-            const bookBalInput = document.getElementById('ctrl-book-balance').value.replace(/\D/g, '');
-            const bookVal = parseInt(bookBalInput) || 0;
+            const raw = document.getElementById('ctrl-book-balance').value.replace(/,/g, '');
+            const bookVal = parseInt(raw, 10) || 0;
             const bookDisplay = document.getElementById('paper-book-balance-display');
 
             if (bookVal > 0) {
