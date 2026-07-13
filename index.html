@@ -587,10 +587,10 @@
         function formatAndSyncBookBalance(inputEl) {
             let value = inputEl.value;
 
-    // Giữ lại dấu "-" nếu ở đầu và các chữ số
+            // Giữ lại dấu "-" nếu ở đầu và các chữ số
             value = value.replace(/[^\d-]/g, '');
 
-    // Chỉ cho phép 1 dấu "-" ở đầu
+            // Chỉ cho phép 1 dấu "-" ở đầu
             value = value.replace(/(?!^)-/g, '');
 
             if (value === '' || value === '-') {
@@ -646,24 +646,17 @@
                 actualBalEl.innerHTML = '...............................................................................................';
             }
 
-            // Match discrepancy with paper book balance
-            const raw = document.getElementById('ctrl-book-balance').value.replace(/,/g, '');
+            // Match discrepancy with paper book balance - support negative values
+            const raw = document.getElementById('ctrl-book-balance').value.replace(/[^0-9-]/g, '');
             const bookVal = parseInt(raw, 10) || 0;
             const bookDisplay = document.getElementById('paper-book-balance-display');
 
-            if (bookVal > 0) {
+            if (raw !== '' && raw !== '-') {
                 bookDisplay.innerHTML = `&nbsp;<b>${bookVal.toLocaleString('vi-VN')}</b>&nbsp;`;
             } else {
                 bookDisplay.innerHTML = '...............................................................................................';
             }
 
-            // Automated discrepancy analysis suggestion
-            const ctrlReason = document.getElementById('ctrl-diff-reason');
-            const ctrlConclusion = document.getElementById('ctrl-conclusion');
-            const paperReason = document.getElementById('paper-diff-reason-text');
-            const paperConclusion = document.getElementById('paper-conclusion-text');
-
-        }
 
         // Custom responsive alert indicators
         function showToast(message, type = 'success') {
