@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Kiểm kê Quỹ Tiền mặt & Xuất PDF - Mẫu 08a-TT</title>
+    <!-- Tailwind CSS for high-quality responsive UI -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for premium UI typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- html2pdf.js library for high-fidelity client-side PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Lora', '"Times New Roman"', 'Times', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbars for professional dashboard aesthetic */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+
+        /* Glassmorphism focus states */
+        .glass-input:focus {
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.25);
+            border-color: #818cf8;
+        }
+
+        /* Realistic A4 simulated paper container */
+        .paper-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.05);
+        }
+
+        /* Standardized printed output styling */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .print-container {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                background: #fff !important;
+                color: #000 !important;
+            }
+            .print-paper {
+                font-family: "Times New Roman", Times, serif !important;
+                padding: 0 !important;
+                background: transparent !important;
+            }
+        }
+
+        /* Dotted underline styler that matches formal Vietnamese administrative style */
+        .dotted-line-fill {
+            border-bottom: 1px dotted #1e293b;
+            display: inline-block;
+            min-height: 1.5em;
+            vertical-align: bottom;
+        }
+    </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-200 min-h-screen font-sans antialiased overflow-x-hidden">
+
+    <!-- Modern Premium Toast Notifications -->
+    <div id="toast" class="fixed bottom-6 right-6 z-50 transform translate-y-12 opacity-0 pointer-events-none transition-all duration-300 ease-out flex items-center gap-3 bg-slate-900 border border-indigo-500/30 text-indigo-400 px-5 py-4 rounded-xl shadow-2xl">
+        <div id="toast-icon-bg" class="bg-indigo-500/10 p-2 rounded-lg">
+            <svg id="toast-icon" class="w-5 h-5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+        </div>
+        <div>
+            <p class="font-bold text-sm text-slate-100" id="toast-title">Thao tác thành công</p>
+            <p class="text-xs text-slate-400" id="toast-message">Đã cập nhật hệ thống dữ liệu.</p>
+        </div>
+    </div>
+
+    <!-- Main Interactive Workspace -->
+    <div class="flex flex-col xl:flex-row min-h-screen">
+        
+        <!-- LEFT PANEL: CONTROL HUB (DARK INTERACTION ZONE) -->
+        <div class="w-full xl:w-[45%] bg-[#0f1524] border-r border-slate-800/80 p-6 lg:p-8 overflow-y-auto no-print flex flex-col justify-between max-h-screen xl:sticky xl:top-0">
+            <div>
+                <!-- Brand Header -->
+                <div class="flex items-center gap-3.5 mb-6 border-b border-slate-800/60 pb-5">
+                    <div class="p-3 bg-gradient-to-tr from-indigo-500 to-violet-600 rounded-xl shadow-lg shadow-indigo-500/20">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold tracking-widest text-indigo-400 uppercase">MIXUE</span>
+                        <h1 class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">KIỂM KÊ MIXUE</h1>
+                    </div>
+                </div>
+
+                <!-- Dynamic Input Workspace -->
+                <div class="space-y-5">
+                    
+                    <!-- Section 1: Store & Document Info -->
+                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold text-indigo-400 tracking-wider uppercase flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                Thông tin hành chính & Đơn vị
+                            </h3>
+                            <button onclick="setCurrentDateTime()" type="button" class="text-xs text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 px-2.5 py-1 rounded-lg transition-colors flex items-center gap-1">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                Lấy giờ hiện tại
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Tên Cửa hàng</label>
+                                <input type="text" id="ctrl-store" oninput="syncToPaperText('store')" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500 glass-input transition-all duration-200" placeholder="">
+                            </div>
+                            
+                        </div>
+                        <div class="grid grid-cols-3 gap-3">
+                            <div class="col-span-2">
+                                <label class="block text-xs font-medium text-slate-400 mb-1.5">Thời điểm kiểm kê</label>
+                                <div class="grid grid-cols-5 gap-1 text-center">
+                                    <input type="text" id="ctrl-h" oninput="syncToPaperText('h')" class="bg-slate-950/80 border border-slate-800 rounded-lg py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 text-center" placeholder="Giờ">
+                                    <input type="text" id="ctrl-m" oninput="syncToPaperText('m')" class="bg-slate-950/80 border border-slate-800 rounded-lg py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 text-center" placeholder="Phút">
+                                    <input type="text" id="ctrl-d" oninput="syncToPaperText('d')" class="bg-slate-950/80 border border-slate-800 rounded-lg py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 text-center" placeholder="Ngày">
+                                    <input type="text" id="ctrl-mo" oninput="syncToPaperText('mo')" class="bg-slate-950/80 border border-slate-800 rounded-lg py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 text-center" placeholder="Tháng">
+                                    <input type="text" id="ctrl-y" oninput="syncToPaperText('y')" class="bg-slate-950/80 border border-slate-800 rounded-lg py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500 text-center" placeholder="Năm">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: Committee Members -->
+                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 space-y-3.5">
+                        <h3 class="text-xs font-bold text-indigo-400 tracking-wider uppercase flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            Thành viên Ban Kiểm Kê (Tối đa 3 người)
+                        </h3>
+                        <div class="space-y-2.5">
+                            <!-- Member 1 -->
+                            <div class="grid grid-cols-12 gap-2 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
+                                <div class="col-span-7">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Thành viên 1 (BO-QC)</label>
+                                    <input type="text" id="ctrl-m1-name" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Ông/Bà: Nguyễn Văn A">
+                                </div>
+                                <div class="col-span-5">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Chức vụ</label>
+                                    <input type="text" id="ctrl-m1-role" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="">
+                                </div>
+                            </div>
+                            <!-- Member 2 -->
+                            <div class="grid grid-cols-12 gap-2 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
+                                <div class="col-span-7">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Thành viên 2</label>
+                                    <input type="text" id="ctrl-m2-name" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Ông/Bà: Trần Thị B">
+                                </div>
+                                <div class="col-span-5">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Chức vụ</label>
+                                    <input type="text" id="ctrl-m2-role" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="">
+                                </div>
+                            </div>
+                            <!-- Member 3 -->
+                            <div class="grid grid-cols-12 gap-2 bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60">
+                                <div class="col-span-7">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Thành viên 3</label>
+                                    <input type="text" id="ctrl-m3-name" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="Ông/Bà: Lê Văn C">
+                                </div>
+                                <div class="col-span-5">
+                                    <label class="block text-[10px] text-slate-400 mb-1">Chức vụ</label>
+                                    <input type="text" id="ctrl-m3-role" oninput="syncCommittee()" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-indigo-500" placeholder="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: Financial Calculations & Denominations -->
+                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-xs font-bold text-indigo-400 tracking-wider uppercase flex items-center gap-2">
+                                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                                Dữ liệu tồn sổ quỹ & Chi tiết tiền
+                            </h3>
+                            <span class="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">VNĐ</span>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5">Số dư theo Sổ sách (Tồn quỹ trên giấy tờ)</label>
+                            <input type="text" id="ctrl-book-balance" oninput="formatAndSyncBookBalance(this)" class="w-full font-bold bg-slate-950 border border-indigo-500/30 rounded-xl px-3 py-2.5 text-sm text-emerald-400 focus:outline-none focus:border-indigo-500 glass-input transition-all duration-200" placeholder="Ví dụ: 1.000.000">
+                        </div>
+
+                        <!-- Mini Denominations List with Counter Controls -->
+                        <div class="border-t border-slate-800/80 pt-4">
+                            <span class="block text-xs font-semibold text-slate-400 mb-3">Số lượng tờ tiền chi tiết từng mệnh giá:</span>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-[300px] overflow-y-auto pr-1">
+                                <!-- Generated Dynamic Cash Input Rows -->
+                                <div id="denom-control-grid" class="space-y-2 col-span-2 grid grid-cols-1 md:grid-cols-2 gap-x-3 gap-y-2">
+                                    <!-- Populated programmatically in JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 4: Explanations & Decisions -->
+                    <div class="bg-slate-900/50 border border-slate-800/80 rounded-2xl p-5 space-y-4">
+                        <h3 class="text-xs font-bold text-indigo-400 tracking-wider uppercase flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 rounded-full bg-indigo-500"></span>
+                            Giải trình & Kết luận sau kiểm quỹ
+                        </h3>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5 flex justify-between">
+                                <span>Giải trình thừa/thiếu</span>
+                                <span class="text-[10px] text-indigo-400">(Tự động đề xuất)</span>
+                            </label>
+                            <textarea id="ctrl-diff-reason" oninput="syncManualNote('diff-reason')" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 glass-input min-h-[60px]" placeholder="Nguyên nhân sai lệch..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-400 mb-1.5 flex justify-between">
+                                <span>Kết luận sau kiểm kê</span>
+                                <span class="text-[10px] text-indigo-400">(Tự động đề xuất)</span>
+                            </label>
+                            <textarea id="ctrl-conclusion" oninput="syncManualNote('conclusion')" class="w-full bg-slate-950/80 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 focus:outline-none focus:border-indigo-500 glass-input min-h-[60px]" placeholder="Kết luận định hướng xử lý..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Dashboard Trigger Elements -->
+            <div class="mt-8 space-y-3.5 pt-6 border-t border-slate-800/80">
+                <button onclick="exportToPDF()" class="w-full flex items-center justify-center gap-2.5 bg-gradient-to-r from-indigo-500 via-indigo-600 to-violet-600 hover:from-indigo-400 hover:to-violet-500 text-white font-bold px-4 py-4 rounded-xl shadow-lg shadow-indigo-500/20 active:scale-[0.98] transition-all duration-150">
+                    <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                    </svg>
+                    XUẤT FILE PDF CHUẨN A4
+                </button>
+                <div class="grid grid-cols-2 gap-3">
+                    <button onclick="copyDocumentForWord()" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-850 text-slate-200 font-semibold px-3 py-3 rounded-xl border border-slate-800 active:scale-[0.98] transition-all duration-150 text-xs">
+                        <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path>
+                        </svg>
+                        Sao chép sang Word
+                    </button>
+                    <button onclick="window.print()" class="flex items-center justify-center gap-1.5 bg-slate-900 hover:bg-slate-850 text-slate-200 font-semibold px-3 py-3 rounded-xl border border-slate-800 active:scale-[0.98] transition-all duration-150 text-xs">
+                        <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+                        </svg>
+                        In trực tiếp (A4)
+                    </button>
+                </div>
+                <p class="text-[10px] text-slate-500 text-center mt-2">Dữ liệu tự động đồng bộ hóa sang bản A4 thực tế ở khung hiển thị bên cạnh.</p>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: WYSIWYG LIVE PREVIEW IN A4 LAYOUT -->
+        <div class="flex-1 bg-[#090b11] p-4 sm:p-6 lg:p-10 xl:p-12 overflow-y-auto flex justify-center items-start print:p-0 print:bg-white">
+            
+            <!-- Standard A4 Sheet wrapper for PDF generation -->
+            <div id="printable-document" class="print-container w-full max-w-[210mm] min-h-[297mm] bg-white text-black p-[20mm] sm:p-[22mm] paper-shadow border border-slate-900/10 text-[12.5pt] leading-relaxed font-serif relative print:shadow-none print:border-none print:p-0">
+                
+                <!-- Administrative Standard Header -->
+                <div class="w-full flex justify-between items-start mb-6 text-sm">
+                    <div class="w-[45%] text-left">
+                        <div class="font-bold uppercase tracking-tight text-[11.5pt] leading-tight">
+                            Cửa hàng: <span id="paper-store" class="dotted-line-fill font-bold min-w-[120px]">.......................................</span>
+                        </div>
+                        
+                    </div>
+                    <div class="w-[50%] text-center leading-normal">
+                        <div class="font-bold text-[11pt] uppercase">Mẫu số 08a - TT</div>
+                        <div class="text-[9.5pt] text-slate-700 italic mt-1 leading-normal">
+                            (Ban hành theo Thông tư số 133/2016/TT-BTC<br>
+                            ngày 26/8/2016 của Bộ Tài chính)
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Title Header Area -->
+                <div class="text-center mb-6">
+                    <h2 class="font-extrabold text-[16pt] tracking-wide uppercase leading-normal">BẢNG KIỂM KÊ QUỸ</h2>
+                    <div class="italic text-[12pt] font-medium text-slate-800">(Dùng cho tiền Việt Nam Đồng - VNĐ)</div>
+                    <div class="text-[11.5pt] mt-1.5 font-sans">
+                        Số: <span id="paper-doc-num" class="dotted-line-fill font-bold min-w-[80px] text-center text-indigo-950">.................</span>
+                    </div>
+                </div>
+
+                <!-- Formal Legal Context Body -->
+                <div class="space-y-3.5 text-[12.5pt]">
+                    <div class="leading-relaxed">
+                        Hôm nay, vào <span id="paper-h" class="dotted-line-fill font-bold min-w-[30px] text-center text-indigo-950">.....</span> giờ 
+                        <span id="paper-m" class="dotted-line-fill font-bold min-w-[30px] text-center text-indigo-950">.....</span> phút, ngày 
+                        <span id="paper-d" class="dotted-line-fill font-bold min-w-[30px] text-center text-indigo-950">.....</span> tháng 
+                        <span id="paper-mo" class="dotted-line-fill font-bold min-w-[30px] text-center text-indigo-950">.....</span> năm 
+                        <span id="paper-y" class="dotted-line-fill font-bold min-w-[50px] text-center text-indigo-950">.........</span>
+                    </div>
+                    <div class="font-bold italic">Chúng tôi gồm:</div>
+                    
+                    <!-- Dynamic Committee Members List Container in Paper -->
+                    <div id="paper-committee-container" class="space-y-1">
+                        <!-- Filled in systematically -->
+                        <div class="flex items-end flex-wrap leading-relaxed">
+                            <span>- Ông/Bà:</span>
+                            <span class="dotted-line-fill flex-grow min-w-[200px] px-2 font-bold" id="paper-m1-name-display">................................................................................</span>
+                            <span>Chức vụ:</span>
+                            <span class="dotted-line-fill w-[160px] text-center font-bold" id="paper-m1-role-display">...................................</span>
+                        </div>
+                        <div class="flex items-end flex-wrap leading-relaxed">
+                            <span>- Ông/Bà:</span>
+                            <span class="dotted-line-fill flex-grow min-w-[200px] px-2 font-bold" id="paper-m2-name-display">................................................................................</span>
+                            <span>Chức vụ:</span>
+                            <span class="dotted-line-fill w-[160px] text-center font-bold" id="paper-m2-role-display">...................................</span>
+                        </div>
+                        <div class="flex items-end flex-wrap leading-relaxed">
+                            <span>- Ông/Bà:</span>
+                            <span class="dotted-line-fill flex-grow min-w-[200px] px-2 font-bold" id="paper-m3-name-display">................................................................................</span>
+                            <span>Chức vụ:</span>
+                            <span class="dotted-line-fill w-[160px] text-center font-bold" id="paper-m3-role-display">...................................</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-end flex-wrap leading-relaxed pt-1">
+                        <span>Cùng tiến hành kiểm kê quỹ tiền mặt tại cửa hàng:</span>
+                        <span id="paper-target-store" class="dotted-line-fill flex-grow min-w-[150px] px-2 font-semibold">..........................................................................................</span>
+                    </div>
+
+                    <div class="font-bold pt-1">Kết quả kiểm kê như sau:</div>
+
+                    <div class="space-y-1.5">
+                        <div class="flex items-end leading-relaxed">
+                            <span class="font-semibold">1. Tồn sổ sách:</span>
+                            <span id="paper-book-balance-display" class="dotted-line-fill flex-grow px-3 font-bold text-right text-[13pt]">...............................................................................................</span>
+                            <span class="font-bold ml-1.5 text-xs">VNĐ</span>
+                        </div>
+                        <div class="flex items-end leading-relaxed">
+                            <span class="font-semibold">2. Tồn thực tế:</span>
+                            <span id="paper-actual-balance" class="dotted-line-fill flex-grow px-3 font-extrabold text-right text-[13pt]">...............................................................................................</span>
+                            <span class="font-bold ml-1.5 text-xs">VNĐ</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Core Valuation Table -->
+                <div class="mt-6">
+                    <caption class="block text-left font-bold text-[12pt] mb-2 uppercase tracking-wide">BẢNG KÊ CHI TIẾT THEO MỆNH GIÁ TIỀN:</caption>
+                    <table class="w-full border-collapse border-2 border-black text-center text-[11.5pt] leading-normal">
+                        <thead>
+                            <tr class="bg-slate-100/80 font-bold border-b-2 border-black">
+                                <th class="border-r border-black p-2.5 w-[38%] text-left pl-4">Mệnh giá (VNĐ)</th>
+                                <th class="border-r border-black p-2.5 w-[24%]">Số lượng (Tờ)</th>
+                                <th class="p-2.5 w-[38%] text-right pr-4">Thành tiền (VNĐ)</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paper-table-body" class="divide-y divide-black/60">
+                            <!-- Populated systematically with standard Vietnamese denominations -->
+                        </tbody>
+                        <tfoot>
+                            <tr class="font-bold border-t-2 border-black bg-slate-100/60 text-[12pt]">
+                                <td class="border-r border-black p-2.5 text-left pl-4 uppercase tracking-wider">TỔNG CỘNG TIỀN MẶT</td>
+                                <td id="paper-total-qty" class="border-r border-black p-2.5 text-center">0</td>
+                                <td id="paper-total-amount" class="p-2.5 text-right pr-4">0</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- Post-Inventory Legal Sections -->
+                <div class="mt-6 space-y-4 text-[12pt]">
+                    <div>
+                        <div class="font-bold">- Giải trình lý do thừa / thiếu:</div>
+                        <div id="paper-diff-reason-text" class="dotted-line-fill w-full min-h-[45px] leading-relaxed italic text-[11.5pt]">
+                            ........................................................................................................................................................................................................................................................................
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="font-bold">- Kết luận sau khi kiểm kê quỹ:</div>
+                        <div id="paper-conclusion-text" class="dotted-line-fill w-full min-h-[45px] leading-relaxed text-[11.5pt]">
+                            ........................................................................................................................................................................................................................................................................
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Official Signature Matrix -->
+                <div class="mt-8 grid grid-cols-2 gap-4 text-center text-[11.5pt] leading-snug">
+                    <div class="flex flex-col items-center">
+                        <div class="font-bold uppercase text-[11pt]">ĐẠI DIỆN CỬA HÀNG</div>
+                        <div class="italic text-[9.5pt] text-slate-700 mt-0.5">(Ký, ghi rõ họ tên)</div>
+                        <div class="h-24"></div> <!-- Structural footprint for ink stamp -->
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <div class="font-bold uppercase text-[11pt]">NGƯỜI CHỊU TRÁCH NHIỆM KIỂM KÊ QUỸ</div>
+                        <div class="italic text-[9.5pt] text-slate-700 mt-0.5">(Ký, ghi rõ họ tên)</div>
+                        <div class="h-24"></div> <!-- Structural footprint for ink signature -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Core Application Javascript logic -->
+    <script>
+        // Official Vietnamese Denominations (VNĐ)
+        const denominations = [500000, 200000, 100000, 50000, 20000, 10000, 5000, 2000, 1000];
+        
+        // Dynamic Cash quantites registry
+        const quantities = {};
+        denominations.forEach(val => {
+            quantities[val] = 0;
+        });
+
+        // Initialize App on DOM Completion
+        window.addEventListener('DOMContentLoaded', () => {
+            renderDashboardWidgets();
+            renderPaperLiveTable();
+            setCurrentDateTime();
+            recalculateCoreMetrics();
+        });
+
+        // Programmatic build of controls panel cash grid
+        function renderDashboardWidgets() {
+            const container = document.getElementById('denom-control-grid');
+            
+            denominations.forEach(denom => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-slate-950/40 hover:bg-slate-950/80 border border-slate-850 rounded-xl p-2.5 transition-all duration-150";
+                
+                item.innerHTML = `
+                    <span class="text-xs font-bold text-slate-300 w-24">${denom.toLocaleString('vi-VN')} đ</span>
+                    <div class="flex items-center gap-1">
+                        <button type="button" onclick="adjustDenom('${denom}', -1)" class="bg-slate-800 hover:bg-slate-750 text-slate-300 w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold transition-colors select-none">-</button>
+                        <input type="number" id="ctrl-qty-${denom}" min="0" oninput="updateDenomDirectly('${denom}', this.value)" class="w-14 text-center bg-slate-900 border border-slate-800 rounded-lg py-1 text-xs text-indigo-300 font-bold focus:outline-none focus:border-indigo-500" placeholder="0">
+                        <button type="button" onclick="adjustDenom('${denom}', 1)" class="bg-slate-800 hover:bg-slate-750 text-slate-300 w-7 h-7 flex items-center justify-center rounded-lg text-sm font-bold transition-colors select-none">+</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // Draw the cash table on the preview paper in high fidelity
+        function renderPaperLiveTable() {
+            const tbody = document.getElementById('paper-table-body');
+            tbody.innerHTML = '';
+
+            denominations.forEach(denom => {
+                const tr = document.createElement('tr');
+                tr.id = `paper-row-${denom}`;
+                tr.className = "hover:bg-slate-50 transition-colors duration-150";
+
+                tr.innerHTML = `
+                    <td class="border-r border-black p-2 text-left pl-4 font-semibold">${denom.toLocaleString('vi-VN')}</td>
+                    <td class="border-r border-black p-2 text-center font-bold" id="paper-qty-cell-${denom}">-</td>
+                    <td class="p-2 text-right pr-4 font-medium" id="paper-amount-cell-${denom}">0</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Increment or decrement denominative counts via button triggers
+        function adjustDenom(denom, steps) {
+            const el = document.getElementById(`ctrl-qty-${denom}`);
+            let curr = parseInt(el.value) || 0;
+            let nextVal = Math.max(0, curr + steps);
+            
+            el.value = nextVal === 0 ? '' : nextVal;
+            quantities[denom] = nextVal;
+            syncQtyToPaper(denom, nextVal);
+            recalculateCoreMetrics();
+        }
+
+        // Directly bind inputs manually inside cash elements
+        function updateDenomDirectly(denom, rawVal) {
+            let val = parseInt(rawVal) || 0;
+            if (val < 0) val = 0;
+            quantities[denom] = val;
+            syncQtyToPaper(denom, val);
+            recalculateCoreMetrics();
+        }
+
+        // Mirror individual quantative metrics on paper canvas
+        function syncQtyToPaper(denom, qty) {
+            const qtyCell = document.getElementById(`paper-qty-cell-${denom}`);
+            const amountCell = document.getElementById(`paper-amount-cell-${denom}`);
+            
+            if (qty > 0) {
+                qtyCell.textContent = qty.toLocaleString('vi-VN');
+                const sum = denom * qty;
+                amountCell.textContent = sum.toLocaleString('vi-VN');
+            } else {
+                qtyCell.textContent = "-";
+                amountCell.textContent = "0";
+            }
+        }
+
+        // Set fallback systems to current system date-times
+        function setCurrentDateTime() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const d = String(now.getDate()).padStart(2, '0');
+            const mo = String(now.getMonth() + 1).padStart(2, '0');
+            const y = now.getFullYear();
+
+            document.getElementById('ctrl-h').value = h;
+            document.getElementById('ctrl-m').value = m;
+            document.getElementById('ctrl-d').value = d;
+            document.getElementById('ctrl-mo').value = mo;
+            document.getElementById('ctrl-y').value = y;
+
+            syncToPaperText('h');
+            syncToPaperText('m');
+            syncToPaperText('d');
+            syncToPaperText('mo');
+            syncToPaperText('y');
+            
+            showToast('Đã đồng bộ hóa giờ hiện tại!', 'info');
+        }
+
+        // High fidelity parser from form control value to flat text container with dotted support
+        function syncToPaperText(fieldId) {
+            const ctrlVal = document.getElementById(`ctrl-${fieldId}`).value.trim();
+            const paperEl = document.getElementById(`paper-${fieldId}`);
+            
+            if (paperEl) {
+                if (ctrlVal) {
+                    paperEl.innerHTML = `&nbsp;<b>${ctrlVal}</b>&nbsp;`;
+                    paperEl.style.borderBottom = "none";
+                } else {
+                    let fallbackDot = '.......................................';
+                    if (['h', 'm', 'd', 'mo'].includes(fieldId)) fallbackDot = '.....';
+                    if (fieldId === 'y') fallbackDot = '.........';
+                    if (fieldId === 'doc-num') fallbackDot = '.................';
+
+                    paperEl.innerHTML = fallbackDot;
+                    paperEl.style.borderBottom = "1px dotted #1e293b";
+                }
+            }
+
+            // Dual binding logic for store mirrors
+            if (fieldId === 'store') {
+                const targetStore = document.getElementById('paper-target-store');
+                if (targetStore) {
+                    targetStore.innerHTML = ctrlVal ? `&nbsp;<b>${ctrlVal}</b>&nbsp;` : '..........................................................................................';
+                }
+            }
+        }
+
+        // Parse committee table into formal rows
+        function syncCommittee() {
+            for (let i = 1; i <= 3; i++) {
+                const name = document.getElementById(`ctrl-m${i}-name`).value.trim();
+                const role = document.getElementById(`ctrl-m${i}-role`).value.trim();
+                
+                const paperName = document.getElementById(`paper-m${i}-name-display`);
+                const paperRole = document.getElementById(`paper-m${i}-role-display`);
+
+                if (paperName) {
+                    paperName.innerHTML = name ? `&nbsp;<b>${name}</b>&nbsp;` : '................................................................................';
+                }
+                if (paperRole) {
+                    paperRole.innerHTML = role ? `&nbsp;<b>${role}</b>&nbsp;` : '...................................';
+                }
+            }
+        }
+
+        // Format book financial balance elements instantly in local context
+        function formatAndSyncBookBalance(inputEl) {
+            let digits = inputEl.value.replace(/\D/g, '');
+            if (digits) {
+                const formatted = parseInt(digits).toLocaleString('vi-VN');
+                inputEl.value = formatted;
+            } else {
+                inputEl.value = '';
+            }
+            recalculateCoreMetrics();
+        }
+
+        // Automated arithmetic ledger engine
+        let isManualDiffReason = false;
+        let isManualConclusion = false;
+
+        function syncManualNote(type) {
+            if (type === 'diff-reason') {
+                isManualDiffReason = true;
+                const txt = document.getElementById('ctrl-diff-reason').value.trim();
+                document.getElementById('paper-diff-reason-text').innerHTML = txt ? `<b>${txt}</b>` : '........................................................................................................................................................................................................................................................................';
+            } else if (type === 'conclusion') {
+                isManualConclusion = true;
+                const txt = document.getElementById('ctrl-conclusion').value.trim();
+                document.getElementById('paper-conclusion-text').innerHTML = txt ? `<b>${txt}</b>` : '........................................................................................................................................................................................................................................................................';
+            }
+        }
+
+        function recalculateCoreMetrics() {
+            let totalQty = 0;
+            let totalAmount = 0;
+
+            denominations.forEach(denom => {
+                const qty = quantities[denom] || 0;
+                totalQty += qty;
+                totalAmount += (denom * qty);
+            });
+
+            // Set grand aggregates on paper canvas
+            document.getElementById('paper-total-qty').textContent = totalQty > 0 ? totalQty.toLocaleString('vi-VN') : "0";
+            document.getElementById('paper-total-amount').textContent = totalAmount > 0 ? totalAmount.toLocaleString('vi-VN') : "0";
+
+            // Sync actual cash sum indicator
+            const actualBalEl = document.getElementById('paper-actual-balance');
+            if (totalAmount > 0) {
+                actualBalEl.innerHTML = `&nbsp;<b>${totalAmount.toLocaleString('vi-VN')}</b>&nbsp;`;
+            } else {
+                actualBalEl.innerHTML = '...............................................................................................';
+            }
+
+            // Match discrepancy with paper book balance
+            const bookBalInput = document.getElementById('ctrl-book-balance').value.replace(/\D/g, '');
+            const bookVal = parseInt(bookBalInput) || 0;
+            const bookDisplay = document.getElementById('paper-book-balance-display');
+
+            if (bookVal > 0) {
+                bookDisplay.innerHTML = `&nbsp;<b>${bookVal.toLocaleString('vi-VN')}</b>&nbsp;`;
+            } else {
+                bookDisplay.innerHTML = '...............................................................................................';
+            }
+
+            // Automated discrepancy analysis suggestion
+            const ctrlReason = document.getElementById('ctrl-diff-reason');
+            const ctrlConclusion = document.getElementById('ctrl-conclusion');
+            const paperReason = document.getElementById('paper-diff-reason-text');
+            const paperConclusion = document.getElementById('paper-conclusion-text');
+
+            if (bookVal > 0 && totalAmount > 0) {
+                const difference = totalAmount - bookVal;
+                let suggestedReason = "";
+                let suggestedConclusion = "";
+
+                if (difference === 0) {
+                    suggestedReason = "Kiểm kê trùng khớp hoàn toàn, không có chênh lệch giữa số dư sổ sách và tồn quỹ thực tế.";
+                    suggestedConclusion = "Quỹ hoạt động ổn định, an toàn, thủ quỹ quản lý dòng tiền mặt khớp đúng chứng từ.";
+                } else if (difference > 0) {
+                    suggestedReason = `Thừa quỹ tiền mặt: +${difference.toLocaleString('vi-VN')} VNĐ. Nguyên nhân đề xuất do thừa tiền lẻ chưa trả lại hoặc chưa vào kịp chứng từ thu.`;
+                    suggestedConclusion = `Tạm thời nộp vào quỹ dự trữ khoản chênh lệch thừa ${difference.toLocaleString('vi-VN')} VNĐ và rà soát thêm lịch sử chứng từ trong ngày.`;
+                } else {
+                    suggestedReason = `Thiếu hụt quỹ tiền mặt: -${Math.abs(difference).toLocaleString('vi-VN')} VNĐ. Nguyên nhân sơ bộ đang chờ đối chiếu chi tiết sổ sách ngân quỹ ngày hôm nay.`;
+                    suggestedConclusion = `Yêu cầu làm rõ trách nhiệm cá nhân liên đới, thủ quỹ có nghĩa vụ hoàn trả phần thâm hụt ${Math.abs(difference).toLocaleString('vi-VN')} VNĐ cho quỹ.`;
+                }
+
+                if (!isManualDiffReason) {
+                    ctrlReason.value = suggestedReason;
+                    paperReason.innerHTML = `<b>${suggestedReason}</b>`;
+                }
+                if (!isManualConclusion) {
+                    ctrlConclusion.value = suggestedConclusion;
+                    paperConclusion.innerHTML = `<b>${suggestedConclusion}</b>`;
+                }
+            } else {
+                if (!isManualDiffReason) {
+                    ctrlReason.value = "";
+                    paperReason.innerHTML = '........................................................................................................................................................................................................................................................................';
+                }
+                if (!isManualConclusion) {
+                    ctrlConclusion.value = "";
+                    paperConclusion.innerHTML = '........................................................................................................................................................................................................................................................................';
+                }
+            }
+        }
+
+        // Custom responsive alert indicators
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const titleEl = document.getElementById('toast-title');
+            const msgEl = document.getElementById('toast-message');
+            const iconBg = document.getElementById('toast-icon-bg');
+            const icon = document.getElementById('toast-icon');
+
+            msgEl.textContent = message;
+            
+            if (type === 'success') {
+                titleEl.textContent = "Thao tác thành công";
+                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 ease-out flex items-center gap-3 bg-slate-900 border border-emerald-500/30 text-emerald-400 px-5 py-4 rounded-xl shadow-2xl";
+                iconBg.className = "bg-emerald-500/10 p-2 rounded-lg";
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>`;
+            } else {
+                titleEl.textContent = "Thông tin hệ thống";
+                toast.className = "fixed bottom-6 right-6 z-50 transform translate-y-0 opacity-100 transition-all duration-300 ease-out flex items-center gap-3 bg-slate-900 border border-indigo-500/30 text-indigo-400 px-5 py-4 rounded-xl shadow-2xl";
+                iconBg.className = "bg-indigo-500/10 p-2 rounded-lg";
+                icon.innerHTML = `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>`;
+            }
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-12', 'opacity-0');
+            }, 3000);
+        }
+
+        // Custom copy mechanism targeting Word's styling parser
+        function copyDocumentForWord() {
+            const range = document.createRange();
+            const docElement = document.getElementById('printable-document');
+            
+            range.selectNode(docElement);
+            window.getSelection().removeAllRanges();
+            window.getSelection().addRange(range);
+            
+            try {
+                const successful = document.execCommand('copy');
+                if (successful) {
+                    showToast('Đã sao chép! Bạn hãy mở Microsoft Word và nhấn nút Ctrl + V.');
+                } else {
+                    alert('Quyền sao chép tự động bị chặn trên thiết bị của bạn. Vui lòng tô đen phần giấy A4 bên phải để copy thủ công.');
+                }
+            } catch (err) {
+                alert('Không thể thực hiện tự động, vui lòng chọn thủ công.');
+            }
+            window.getSelection().removeAllRanges();
+        }
+
+        // Pure high fidelity pdf render engine
+        function exportToPDF() {
+            showToast('Hệ thống đang biên soạn PDF, vui lòng đợi trong giây lát...', 'info');
+            const element = document.getElementById('printable-document');
+            
+            // Generate filename based on date and metadata
+            const storeName = document.getElementById('ctrl-store').value.trim() || 'Cua_Hang';
+            const cleanStore = storeName.replace(/[^a-zA-Z0-9]/g, "_");
+            const fileName = `Bien_Ban_Kiem_Ke_Quy_${cleanStore}.pdf`;
+
+            // Setup options for html2pdf
+            const opt = {
+                margin:       [15, 15, 15, 15], // standard margins in millimeters (top, left, bottom, right)
+                filename:     fileName,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2.5, // Enhances text crispness and border detail dramatically
+                    useCORS: true,
+                    letterRendering: true
+                },
+                jsPDF:        { 
+                    unit: 'mm', 
+                    format: 'a4', 
+                    orientation: 'portrait' 
+                }
+            };
+
+            // Process canvas rendering using html2pdf framework promises
+            html2pdf().set(opt).from(element).save().then(() => {
+                showToast('Đã tải thành công tập tin PDF chất lượng cao!', 'success');
+            }).catch(err => {
+                console.error(err);
+                showToast('Có lỗi xảy ra khi tạo PDF. Hãy thử dùng tính năng In trực tiếp.', 'info');
+            });
+        }
+    </script>
+</body>
+</html>
